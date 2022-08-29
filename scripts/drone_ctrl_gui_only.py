@@ -5,8 +5,6 @@
 
 import tkinter as tk
 # from functools import partial
-import rospy
-from std_msgs.msg import String
 
 
 TXT_START = 'start'
@@ -179,7 +177,7 @@ def ctrl_by_button(e, label):
             if e.widget['text'].lower() == i:
                 # label['text'] = e.widget['text'] + ', ' + label['text']
                 label['text'] = e.widget['text']
-                print(i)
+                print('Send message: {}'.format(i))  # similar ROS_INFO()
 
 
 if __name__ == '__main__':
