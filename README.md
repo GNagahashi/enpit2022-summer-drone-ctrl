@@ -20,3 +20,8 @@ catkin build
 ```
 
 3. Run in terminal.
+```sh
+# e.g.
+# source ~/catkin_ws//devel/setup.bash
+rosrun enpit2022_summer_drone_ctrl drone_ctrl_gui.py
+```
