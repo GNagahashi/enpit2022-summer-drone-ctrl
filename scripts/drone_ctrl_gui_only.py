@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+This program don't send message for ROS Topic.
+Only GUI.
+"""
+
 # >>> import sys; sys.version
 # '2.7.17 (default, Jul  1 2022, 15:56:32) \n[GCC 7.5.0]'
 
