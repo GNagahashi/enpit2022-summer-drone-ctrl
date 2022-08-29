@@ -1,7 +1,12 @@
 #!/usr/bin/env python
-
 # >>> import sys; sys.version
 # '2.7.17 (default, Jul  1 2022, 15:56:32) \n[GCC 7.5.0]'
+
+"""
+This program don't send message for ROS Topic.
+Only GUI.
+"""
+
 
 import tkinter as tk
 # from functools import partial
@@ -26,7 +31,9 @@ def main():
     app.resizable(False, False)  # fixed window size(both width and height)
 
     # Create Publisher node
-    # code
+    publisher = rospy.Publisher('/gnc_node/cmd', String, queue_size = 10)  # Node settings
+    rospy.init_node('command_pub', anonymous = True)  # Define node name
+    r = rospy.Rate(1)  # Set publishing rate
 
     # Create frame
     frame_label = tk.Frame(
@@ -109,7 +116,7 @@ def main():
     # Set widget on top of a frame
     label_h1.pack(
         side = tk.LEFT,  # for this widget
-        padx = (0, 6),  # margin(left, right)   
+        padx = (0, 6),  # margin(left, right)
     )
     label_p1.pack(
         expand = True,  # stretchable
@@ -161,26 +168,46 @@ def main():
     )
 
     # Bind function
-    app.bind('<ButtonPress>', lambda e: ctrl_by_button(e, label_p1))
-    # app.bind('<ButtonPress>', lambda e: ctrl_by_button(e, label_p1))
-
-    # label_p1.update_idletasks()
-    # print('label_p1.winfo_width(): {}'.format(label_p1.winfo_width()))
+    e_handler = EventHandler(app, 3000)
+    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
 
     app.mainloop()
 
 
-def ctrl_by_button(e, label):
-    # print('ctrl_by_button')
-    # print('type(e.widget[\'text\'])', type(e.widget['text']))
-    # print('e.widget[\'text\']', e.widget['text'])
-    if e.widget.widgetName == 'button':
-        for i in TXT_LIST:
-            if e.widget['text'].lower() == i:
-                # label['text'] = e.widget['text'] + ', ' + label['text']
+class EventHandler(object):
+    def __init__(self, root, delay):
+        self.__state = True
+        self.root_frame = root
+        self.delay = delay  # ms
+
+    def drone_ctrl_by_button(self, e, label, pub, rate):
+        if self.__state and e.widget.widgetName == 'button':  # key can press and widget is button?
+            key = ''.join([key for key in TXT_LIST if e.widget['text'].lower() == key])
+            if key and not rospy.is_shutdown():
+                msg = String(data = key)
                 label['text'] = e.widget['text']
-                print(i)
+                rospy.loginfo('Send command: {}'.format(msg.data))
+                pub.publish(msg)
+                self.disable_handler()
+                rate.sleep()
+            else:
+                print('Press invalid button or Can not send msg to Topic')
+        else:
+            print('Event handler is disable or Press invalid widget')
+
+    def disable_handler(self):
+        self.root_frame.after(self.delay, self.enable_handler)
+        self.__state = False
+
+    def enable_handler(self):
+        self.__state = True
+        print('Event handler is enable')
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
+    finally:
+        print('bye')
