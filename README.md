@@ -10,6 +10,8 @@ This ROS1 package is using with:
 # e.g.
 cd ~/catkin_ws/src
 git clone https://github.com/GNagahashi/enpit2022_summer_drone_ctrl.git
+# If you needed, rename directory.
+mv enpit2022_summer_drone_ctrl/ drone_ctrl
 ```
 
 2. Build on terminal.
@@ -24,4 +26,6 @@ catkin build
 # e.g.
 # source ~/catkin_ws/devel/setup.bash
 rosrun enpit2022_summer_drone_ctrl drone_ctrl_gui.py
+# or
+rosrun drone_ctrl drone_ctrl_gui.py
 ```
