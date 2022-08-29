@@ -17,7 +17,7 @@ from std_msgs.msg import String
 TXT_START = 'start'
 TXT_GRAB = 'grab'
 TXT_FORWARD = 'forward'
-TXT_BACKWARD = 'bakcward'
+TXT_BACKWARD = 'backward'
 TXT_LEFT = 'left'
 TXT_RIGHT = 'right'
 TXT_LIST = list([TXT_START, TXT_GRAB, TXT_FORWARD, TXT_BACKWARD, TXT_LEFT, TXT_RIGHT])
@@ -40,17 +40,17 @@ def main():
         app,
         padx = 12,  # padding[px]
         pady = 12,  # padding[px]
-        bg = '#ff0000'
+        # bg = '#ff0000'
     )
     frame_btn = tk.Frame(
         app,
         padx = 12,  # padding[px]
         pady = 12,  # padding[px]
-        bg = '#00ff00'
+        # bg = '#00ff00'
     )
     subframe_btn = tk.Frame(
         frame_btn,
-        bg = '#0000ff',
+        # bg = '#0000ff',
     )
 
     # Create widget
