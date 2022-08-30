@@ -10,22 +10,28 @@ This ROS1 package is using with:
 # e.g.
 cd ~/catkin_ws/src
 git clone https://github.com/GNagahashi/enpit2022_summer_drone_ctrl.git
-# If you needed, rename directory.
+```
+
+2. Rename this repository in the local from "enpit2022_summer_drone_ctrl" to "drone_ctrl".
+```sh
+# e.g.
+cd ~/catkin_ws/src
 mv enpit2022_summer_drone_ctrl/ drone_ctrl
 ```
 
-2. Build on terminal.
+3. Build on terminal.
 ```sh
 # e.g.
 cd ~/catkin_ws
 catkin build
+# or
+catkin build drone_ctrl
 ```
 
-3. Run in terminal.
+4. Run in terminal.
 ```sh
 # e.g.
 # source ~/catkin_ws/devel/setup.bash
-rosrun enpit2022_summer_drone_ctrl drone_ctrl_gui.py
-# or
+# roscore
 rosrun drone_ctrl drone_ctrl_gui.py
 ```
