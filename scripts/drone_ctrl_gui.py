@@ -20,7 +20,8 @@ TXT_FORWARD = 'forward'
 TXT_BACKWARD = 'backward'
 TXT_LEFT = 'left'
 TXT_RIGHT = 'right'
-TXT_LIST = list([TXT_START, TXT_GRAB, TXT_FORWARD, TXT_BACKWARD, TXT_LEFT, TXT_RIGHT])
+TXT_STOP = 'stop'
+TXT_LIST = list([TXT_START, TXT_GRAB, TXT_FORWARD, TXT_BACKWARD, TXT_LEFT, TXT_RIGHT, TXT_STOP])
 
 
 def main():
@@ -168,8 +169,9 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app, 3000)
+    e_handler = EventHandler(app, 1000)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
+    app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, publisher, r))
 
     app.mainloop()
 
@@ -202,6 +204,13 @@ class EventHandler(object):
     def enable_handler(self):
         self.__state = True
         print('Event handler is enable')
+
+    def stop_drone(self, e, pub, rate):
+            if not rospy.is_shutdown():
+                msg = String(data = 'stop')
+                rospy.loginfo('Send command: {}'.format(msg.data))
+                pub.publish(msg)
+                rate.sleep()
 
 
 if __name__ == '__main__':
