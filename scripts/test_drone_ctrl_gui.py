@@ -9,7 +9,7 @@ Only GUI.
 
 
 import tkinter as tk
-# from functools import partial
+from enum import Enum
 
 
 TXT_START = 'start'
@@ -78,35 +78,35 @@ def main():
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_GRAB.capitalize(),
+        text = CommandTxt.START.value.capitalize(),
     )
     button_forward = tk.Button(
         subframe_btn,
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_FORWARD.capitalize(),
+        text = CommandTxt.FORWARD.value.capitalize(),
     )
     button_backward = tk.Button(
         subframe_btn,
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_BACKWARD.capitalize(),
+        text = CommandTxt.BACKWARD.value.capitalize(),
     )
     button_left = tk.Button(
         subframe_btn,
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_LEFT.capitalize(),
+        text = CommandTxt.LEFT.value.capitalize(),
     )
     button_right = tk.Button(
         subframe_btn,
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_RIGHT.capitalize(),
+        text = CommandTxt.RIGHT.value.capitalize(),
     )
 
     # Set widget on top of a frame
@@ -164,8 +164,9 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app, 3000)
+    e_handler = EventHandler(app, 1000)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1))
+    app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e))
 
     app.mainloop()
 
@@ -176,16 +177,6 @@ class EventHandler(object):
         self.root_frame = root
         self.delay = delay  # ms
 
-    def drone_ctrl_by_button(self, e, label):
-        if self.__state and e.widget.widgetName == 'button':  # key can press and widget is button?
-            key = ''.join([key for key in TXT_LIST if e.widget['text'].lower() == key])
-            if key:  # button is in the list?
-                label['text'] = e.widget['text']
-                print('Send message: {}'.format(key))  # similar ROS_INFO()
-                self.disable_handler()
-        else:
-            print('Event handler is disable or Press invalid button')
-
     def disable_handler(self):
         self.root_frame.after(self.delay, self.enable_handler)
         self.__state = False
@@ -193,6 +184,52 @@ class EventHandler(object):
     def enable_handler(self):
         self.__state = True
         print('Event handler is enable')
+
+    def drone_ctrl_by_button(self, e, label):  # (self, e, label, pub, rate)
+        if self.__state and e.widget.widgetName == 'button':  # key can press and widget is button?
+            # key = ''.join([key.value for key in CommandTxt if e.widget['text'].lower() == key.value])
+            key = CommandTxt.is_member(e.widget['text'].lower())
+            if key:  # and not rospy.is_shutdown()
+                # msg = String(data = key)
+                label['text'] = e.widget['text']
+                print('Send message: {}'.format(key))  # rospy.loginfo('Send command: {}'.format(msg.data))
+                # pub.publish(msg)
+                # self.disable_handler()
+                # rate.sleep()
+            else:
+                print('Press invalid button or Can not send msg to Topic')
+        # else:
+        #     print('Event handler is disable or Press invalid button')
+
+    def stop_drone(self, e):
+        if e.widget.widgetName == 'button' and not e.widget['text'].lower() == CommandTxt.START.value and not e.widget['text'].lower() == CommandTxt.GRAB.value:
+            # msg = String(data = 'stop')
+            print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
+            # pub.publish(msg)
+            # rate.sleep()
+        else:
+            print('Cancelled: send "stop" message (Release invalid button)')
+        # if ''.join([key.value for key in CommandTxt if ])
+        # if not CommandTxt.is_member(invalid_cmd):
+        #     # msg = String(data = 'stop')
+        #     print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
+        #     # pub.publish(msg)
+        #     # rate.sleep()
+        # else:
+        #     print('Cancelled: send "stop" message')
+
+
+class CommandTxt(Enum):
+    START = 'start'
+    GRAB = 'grab'
+    FORWARD = 'forward'
+    BACKWARD = 'backward'
+    LEFT = 'left'
+    RIGHT = 'right'
+
+    @classmethod
+    def is_member(cls, txt):
+        return ''.join([key.value for key in CommandTxt if txt == key.value])
 
 
 if __name__ == '__main__':
