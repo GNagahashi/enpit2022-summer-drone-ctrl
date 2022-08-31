@@ -69,8 +69,8 @@ def main():
         text = '',
     )
     # button
-    img_start_grab = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_round.png',
+    img_start = tk.PhotoImage(
+        file = 'drone_ctrl_gui_button-button_round_y.png',
     )
     button_start = tk.Button(
         subframe_btn_other,
@@ -78,7 +78,10 @@ def main():
         font = ('Helvetica', 12),
         text = CmdText.START.value.capitalize(),
         compound = 'center',
-        image = img_start_grab,
+        image = img_start,
+    )
+    img_grab = tk.PhotoImage(
+        file = 'drone_ctrl_gui_button-button_round_p.png',
     )
     button_grab = tk.Button(
         subframe_btn_other,
@@ -86,7 +89,7 @@ def main():
         font = ('Helvetica', 12),
         text = CmdText.GRAB.value.capitalize(),
         compound = 'center',
-        image = img_start_grab,
+        image = img_grab,
     )
     img_forward = tk.PhotoImage(
         file = 'drone_ctrl_gui_button-button_forward.png',
@@ -191,7 +194,7 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app, 3000)
+    e_handler = EventHandler(app)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1))
     app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, CmdText.START, CmdText.GRAB))
 
