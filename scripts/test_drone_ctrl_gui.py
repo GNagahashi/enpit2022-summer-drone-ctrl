@@ -10,6 +10,8 @@ Only GUI.
 
 import tkinter as tk
 from enum import Enum
+# import rospy
+# from std_msgs.msg import String
 
 
 def main():
@@ -20,7 +22,9 @@ def main():
     app.resizable(False, False)  # fixed window size(both width and height)
 
     # Create Publisher node
-    # code
+    # publisher = rospy.Publisher('/gnc_node/cmd', String, queue_size = 10)  # Node settings
+    # rospy.init_node('command_pub', anonymous = True)  # Define node name
+    # r = rospy.Rate(1)  # Set publishing rate
 
     # Create frame
     frame_label = tk.Frame(
@@ -46,14 +50,12 @@ def main():
         frame_label,
         anchor = tk.W,  # align left
         font = ('Helvetica', 12),
-        # bg = '#afeeee',
         text = 'History:',
     )
     label_p1 = tk.Label(
         frame_label,
         anchor = tk.W,  # align left
         font = ('Helvetica', 12),
-        # bg = '#fa5500',
         text = '',
     )
     # button
@@ -155,7 +157,7 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app, 1000)
+    e_handler = EventHandler(app, 0)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1))
     app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, CommandTxt.START, CommandTxt.GRAB))
 
@@ -169,8 +171,9 @@ class EventHandler(object):
         self.delay = delay  # ms
 
     def disable_handler(self):
-        self.root_frame.after(self.delay, self.enable_handler)
-        self.__state = False
+        if self.delay != 0:
+            self.root_frame.after(self.delay, self.enable_handler)
+            self.__state = False
 
     def enable_handler(self):
         self.__state = True
@@ -184,14 +187,14 @@ class EventHandler(object):
                 label['text'] = e.widget['text']
                 print('Send message: {}'.format(cmd))  # rospy.loginfo('Send command: {}'.format(msg.data))
                 # pub.publish(msg)
-                # self.disable_handler()
+                self.disable_handler()
                 # rate.sleep()
             else:
                 print('Press invalid widget or Can not send msg to Topic')
         else:
             print('Event handler is disable or Press invalid button')
 
-    def stop_drone(self, e, *args):
+    def stop_drone(self, e, *args):  # (self, e, pub, rate, *args)
         if e.widget.widgetName == 'button' and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):
             # msg = String(data = 'stop')
             print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
