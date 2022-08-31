@@ -10,11 +10,13 @@ Only GUI.
 
 import tkinter as tk
 from enum import Enum
+import os
 # import rospy
 # from std_msgs.msg import String
 
 
 def main():
+    cur_dir = os.getcwd()
     # Create and setting for app window
     app = tk.Tk()
     app.title('Drone App')  # window title
@@ -70,7 +72,7 @@ def main():
     )
     # button
     img_start = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_round_y.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_round_y.png',
     )
     button_start = tk.Button(
         subframe_btn_other,
@@ -81,7 +83,7 @@ def main():
         image = img_start,
     )
     img_grab = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_round_p.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_round_p.png',
     )
     button_grab = tk.Button(
         subframe_btn_other,
@@ -92,7 +94,7 @@ def main():
         image = img_grab,
     )
     img_forward = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_forward.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_forward.png',
     )
     button_forward = tk.Button(
         subframe_btn_move,
@@ -103,7 +105,7 @@ def main():
         image = img_forward,
     )
     img_backward = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_backward.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_backward.png',
     )
     button_backward = tk.Button(
         subframe_btn_move,
@@ -114,7 +116,7 @@ def main():
         image = img_backward,
     )
     img_left = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_left.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_left.png',
     )
     button_left = tk.Button(
         subframe_btn_move,
@@ -125,7 +127,7 @@ def main():
         image = img_left,
     )
     img_right = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_right.png',
+        file = cur_dir + '/drone_ctrl_gui_button-button_right.png',
     )
     button_right = tk.Button(
         subframe_btn_move,
