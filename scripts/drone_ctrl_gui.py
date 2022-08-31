@@ -167,7 +167,7 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app, 1000)
+    e_handler = EventHandler(app, 0)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
     app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, publisher, r))
 
@@ -196,8 +196,10 @@ class EventHandler(object):
             print('Event handler is disable or Press invalid widget')
 
     def disable_handler(self):
-        self.root_frame.after(self.delay, self.enable_handler)
-        self.__state = False
+        if self.delay != 0:
+            self.root_frame.after(self.delay, self.enable_handler)
+            self.__state = False
+            print('Event handler is disable for {} ms'.format(self.delay))
 
     def enable_handler(self):
         self.__state = True
