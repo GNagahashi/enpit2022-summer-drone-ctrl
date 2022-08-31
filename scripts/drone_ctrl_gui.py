@@ -70,7 +70,7 @@ def main():
     )
     # button
     img_start = tk.PhotoImage(
-        file = 'drone_ctrl_gui_button-button_round_y.png',
+        file = '/home/ubuntu/dev_ws/src/drone_ctrl/scripts/drone_ctrl_gui_button-button_round_y.png',
     )
     button_start = tk.Button(
         subframe_btn_other,
