@@ -8,15 +8,17 @@ Only GUI.
 """
 
 
+import os
 import tkinter as tk
 from enum import Enum
-import os
+from functools import partial
 # import rospy
 # from std_msgs.msg import String
 
 
 def main():
-    cur_dir = os.getcwd()
+    file_path, _ = os.path.split(os.path.abspath(__file__))
+
     # Create and setting for app window
     app = tk.Tk()
     app.title('Drone App')  # window title
@@ -72,7 +74,7 @@ def main():
     )
     # button
     img_start = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_round_y.png',
+        file = file_path + '/drone_ctrl_gui_button-button_round_y.png',
     )
     button_start = tk.Button(
         subframe_btn_other,
@@ -83,7 +85,7 @@ def main():
         image = img_start,
     )
     img_grab = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_round_p.png',
+        file = file_path + '/drone_ctrl_gui_button-button_round_p.png',
     )
     button_grab = tk.Button(
         subframe_btn_other,
@@ -94,7 +96,7 @@ def main():
         image = img_grab,
     )
     img_forward = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_forward.png',
+        file = file_path + '/drone_ctrl_gui_button-button_forward.png',
     )
     button_forward = tk.Button(
         subframe_btn_move,
@@ -105,7 +107,7 @@ def main():
         image = img_forward,
     )
     img_backward = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_backward.png',
+        file = file_path + '/drone_ctrl_gui_button-button_backward.png',
     )
     button_backward = tk.Button(
         subframe_btn_move,
@@ -116,7 +118,7 @@ def main():
         image = img_backward,
     )
     img_left = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_left.png',
+        file = file_path + '/drone_ctrl_gui_button-button_left.png',
     )
     button_left = tk.Button(
         subframe_btn_move,
@@ -127,7 +129,7 @@ def main():
         image = img_left,
     )
     img_right = tk.PhotoImage(
-        file = cur_dir + '/drone_ctrl_gui_button-button_right.png',
+        file = file_path + '/drone_ctrl_gui_button-button_right.png',
     )
     button_right = tk.Button(
         subframe_btn_move,
@@ -200,6 +202,33 @@ def main():
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1))
     app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, CmdText.START, CmdText.GRAB))
 
+    # Create menu bar
+    app_menubar = tk.Menu()
+
+    menu_system = tk.Menu(app_menubar, tearoff = False)
+    menu_system.add_command(
+        label = 'Close this window',
+        command = app.destroy,
+    )
+    menu_drone = tk.Menu(app_menubar, tearoff = False)
+    menu_drone.add_command(
+        label = 'Send "halt" event to drone',
+        command = e_handler.halt_drone,
+    )
+
+    app_menubar.add_cascade(
+        label = 'System',
+        menu = menu_system,
+    )
+    app_menubar.add_cascade(
+        label = 'Drone',
+        menu = menu_drone,
+    )
+
+    app.config(
+        menu = app_menubar,
+    )
+
     # Check window size(debug)
     # app.update_idletasks()
     # print('width', app.winfo_width())
@@ -247,6 +276,9 @@ class EventHandler(object):
             # rate.sleep()
         else:
             print('Cancelled: send "stop" message (Release invalid widget)')
+
+    def halt_drone(self):
+        print('Send message: halt')
 
 
 class CmdText(Enum):
