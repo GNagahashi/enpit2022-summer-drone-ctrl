@@ -12,15 +12,6 @@ import tkinter as tk
 from enum import Enum
 
 
-TXT_START = 'start'
-TXT_GRAB = 'grab'
-TXT_FORWARD = 'forward'
-TXT_BACKWARD = 'bakcward'
-TXT_LEFT = 'left'
-TXT_RIGHT = 'right'
-TXT_LIST = list([TXT_START, TXT_GRAB, TXT_FORWARD, TXT_BACKWARD, TXT_LEFT, TXT_RIGHT])
-
-
 def main():
     # Create and setting for app window
     app = tk.Tk()
@@ -71,14 +62,14 @@ def main():
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = TXT_START.capitalize(),
+        text = CommandTxt.START.value.capitalize(),
     )
     button_grab = tk.Button(
         subframe_btn,
         width = 10,  # use font size
         height = 3,  # use font size
         font = ('Helvetica', 12),
-        text = CommandTxt.START.value.capitalize(),
+        text = CommandTxt.GRAB.value.capitalize(),
     )
     button_forward = tk.Button(
         subframe_btn,
@@ -166,7 +157,7 @@ def main():
     # Bind function
     e_handler = EventHandler(app, 1000)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1))
-    app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e))
+    app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, CommandTxt.START, CommandTxt.GRAB))
 
     app.mainloop()
 
@@ -187,36 +178,27 @@ class EventHandler(object):
 
     def drone_ctrl_by_button(self, e, label):  # (self, e, label, pub, rate)
         if self.__state and e.widget.widgetName == 'button':  # key can press and widget is button?
-            # key = ''.join([key.value for key in CommandTxt if e.widget['text'].lower() == key.value])
-            key = CommandTxt.is_member(e.widget['text'].lower())
-            if key:  # and not rospy.is_shutdown()
-                # msg = String(data = key)
+            cmd = e.widget['text'].lower()
+            if CommandTxt.is_member(cmd):  # and not rospy.is_shutdown()
+                # msg = String(data = cmd)
                 label['text'] = e.widget['text']
-                print('Send message: {}'.format(key))  # rospy.loginfo('Send command: {}'.format(msg.data))
+                print('Send message: {}'.format(cmd))  # rospy.loginfo('Send command: {}'.format(msg.data))
                 # pub.publish(msg)
                 # self.disable_handler()
                 # rate.sleep()
             else:
-                print('Press invalid button or Can not send msg to Topic')
-        # else:
-        #     print('Event handler is disable or Press invalid button')
+                print('Press invalid widget or Can not send msg to Topic')
+        else:
+            print('Event handler is disable or Press invalid button')
 
-    def stop_drone(self, e):
-        if e.widget.widgetName == 'button' and not e.widget['text'].lower() == CommandTxt.START.value and not e.widget['text'].lower() == CommandTxt.GRAB.value:
+    def stop_drone(self, e, *args):
+        if e.widget.widgetName == 'button' and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):
             # msg = String(data = 'stop')
             print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
             # pub.publish(msg)
             # rate.sleep()
         else:
-            print('Cancelled: send "stop" message (Release invalid button)')
-        # if ''.join([key.value for key in CommandTxt if ])
-        # if not CommandTxt.is_member(invalid_cmd):
-        #     # msg = String(data = 'stop')
-        #     print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
-        #     # pub.publish(msg)
-        #     # rate.sleep()
-        # else:
-        #     print('Cancelled: send "stop" message')
+            print('Cancelled: send "stop" message (Release invalid widget)')
 
 
 class CommandTxt(Enum):
@@ -229,7 +211,9 @@ class CommandTxt(Enum):
 
     @classmethod
     def is_member(cls, txt):
-        return ''.join([key.value for key in CommandTxt if txt == key.value])
+        if ''.join([key.value for key in CommandTxt if txt == key.value]):  # return '' or 'CommandTxt.value'
+            return True  # 'CommandTxt.value'
+        return False  # ''
 
 
 if __name__ == '__main__':
