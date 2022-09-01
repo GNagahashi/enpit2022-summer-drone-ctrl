@@ -264,18 +264,18 @@ class EventHandler(object):
                 # self.disable_handler()
                 # rate.sleep()
             else:
-                print('Press invalid widget or Can not send msg to Topic')
+                print('Press invalid widget or Could not send msg(data = {}) to Topic'.format(cmd))
         else:
-            print('Event handler is disable or Press invalid button')
+            print('Press invalid button or Event handler is disable')
 
     def stop_drone(self, e, *args):  # (self, e, pub, rate, *args)
-        if e.widget.widgetName == 'button' and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):
+        if e.widget.widgetName == 'button' and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):  # not rospy.is_shutdown()
             # msg = String(data = 'stop')
-            print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
             # pub.publish(msg)
+            print('Send message: stop')  # rospy.loginfo('Send command: {}'.format(msg.data))
             # rate.sleep()
         else:
-            print('Cancelled: send "stop" message (Release invalid widget)')
+            print('Could not send msg(data = stop) to Topic (An invalid button may have been released)')
 
     def halt_drone(self, a, b):
         if True:  # not rospy.is_shutdown()
@@ -284,6 +284,8 @@ class EventHandler(object):
             print(a,b)
             # pub.publish(msg)
             # rate.sleep()
+        else:
+            print('Could not send msg(data = halt) to Topic')
 
 
 class CmdText(Enum):
