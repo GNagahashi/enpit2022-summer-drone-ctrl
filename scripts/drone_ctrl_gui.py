@@ -9,8 +9,9 @@ Only GUI.
 
 
 import os
-import tkinter as tk
 from enum import Enum
+from functools import partial
+import tkinter as tk
 import rospy
 from std_msgs.msg import String
 
@@ -194,7 +195,34 @@ def main():
     # Bind function
     e_handler = EventHandler(app)
     app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
-    app.bind('<ButtonRelease>', lambda e: e_handler.stop_drone(e, publisher, r, CmdText.START, CmdText.GRAB))
+    app.bind('<ButtonRelease>', lambda e: e_handler.drone_stop(e, publisher, r, CmdText.START, CmdText.GRAB))
+
+    # Create menu bar
+    app_menubar = tk.Menu()
+
+    menu_system = tk.Menu(app_menubar, tearoff = False)
+    menu_system.add_command(
+        label = 'Close this application',
+        command = app.destroy,
+    )
+    menu_drone = tk.Menu(app_menubar, tearoff = False)
+    menu_drone.add_command(
+        label = 'Send "halt" event to drone',
+        command = partial(e_handler.drone_halt, publisher, r),
+    )
+
+    app_menubar.add_cascade(
+        label = 'System',
+        menu = menu_system,
+    )
+    app_menubar.add_cascade(
+        label = 'Drone',
+        menu = menu_drone,
+    )
+
+    app.config(
+        menu = app_menubar,
+    )
 
     app.mainloop()
 
@@ -219,26 +247,34 @@ class EventHandler(object):
         if self.__state and e.widget.widgetName == 'button':
             cmd = e.widget['text'].lower()
             if CmdText.is_member(cmd) and not rospy.is_shutdown():
-                msg = String(data = cmd)
                 label['text'] = e.widget['text']
-                print('Send message: {}'.format(cmd))
+                msg = String(data = cmd)
                 pub.publish(msg)
+                rospy.loginfo('Send message: {}'.format(cmd))
                 self.disable_handler()
                 rate.sleep()
             else:
-                print('Press invalid widget or Can not send msg to Topic')
+                print('Press invalid widget or Could not send msg(data = {}) to Topic'.format(cmd))
         else:
-            print('Event handler is disable or Press invalid button')
+            print('Press invalid button or Event handler is disable')
 
-    def stop_drone(self, e, pub, rate, *args):
-        if self.__state and e.widget.widgetName == 'button' and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):
+    def drone_stop(self, e, pub, rate, *args):
+        if e.widget.widgetName == 'button' and not rospy.is_shutdown() and not ''.join([arg.value for arg in args if e.widget['text'].lower() == arg.value]):
             msg = String(data = 'stop')
-            print('Send message: stop')
             pub.publish(msg)
-            self.disable_handler()
+            rospy.loginfo('Send message: stop')
             rate.sleep()
         else:
-            print('Cancelled: send "stop" message (Release invalid widget or Event handler is disable)')
+            print('Could not send msg(data = stop) to Topic (An invalid button may have been released)')
+
+    def drone_halt(self, pub, rate):
+        if not rospy.is_shutdown():
+            msg = String(data = 'halt')
+            pub.publish(msg)
+            rospy.loginfo('Send message: halt')
+            rate.sleep()
+        else:
+            print('Could not send msg(data = halt) to Topic')
 
 
 class CmdText(Enum):

@@ -207,13 +207,13 @@ def main():
 
     menu_system = tk.Menu(app_menubar, tearoff = False)
     menu_system.add_command(
-        label = 'Close this window',
+        label = 'Close this application',
         command = app.destroy,
     )
     menu_drone = tk.Menu(app_menubar, tearoff = False)
     menu_drone.add_command(
         label = 'Send "halt" event to drone',
-        command = e_handler.halt_drone,
+        command = partial(e_handler.halt_drone, 1, 2),
     )
 
     app_menubar.add_cascade(
@@ -277,8 +277,13 @@ class EventHandler(object):
         else:
             print('Cancelled: send "stop" message (Release invalid widget)')
 
-    def halt_drone(self):
-        print('Send message: halt')
+    def halt_drone(self, a, b):
+        if True:  # not rospy.is_shutdown()
+            # String(data = 'halt')
+            print('Send message: halt')
+            print(a,b)
+            # pub.publish(msg)
+            # rate.sleep()
 
 
 class CmdText(Enum):
