@@ -263,6 +263,12 @@ class EventHandler(object):
                 # pub.publish(msg)
                 # self.disable_handler()
                 # rate.sleep()
+                # if cmd = 'grab':
+                #     ret = self.is_grab()
+                #     if ret:
+                #         label['text'] = label['text'] + '-> Success, You are get prize!'
+                #     else:
+                #         label['text'] = label['text'] + '-> Failure, Try agein!'
             else:
                 print('Press invalid widget or Could not send msg(data = {}) to Topic'.format(cmd))
         else:
@@ -286,6 +292,14 @@ class EventHandler(object):
             # rate.sleep()
         else:
             print('Could not send msg(data = halt) to Topic')
+
+    def is_grab(self):
+        # srv/cli program
+        # if collision detection is true
+        print('grab!')
+        #     return True
+        # else:
+        #     return False
 
 
 class CmdText(Enum):
