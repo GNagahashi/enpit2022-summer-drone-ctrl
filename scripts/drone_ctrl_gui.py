@@ -14,6 +14,7 @@ from functools import partial
 import tkinter as tk
 import rospy
 from std_msgs.msg import String
+from pos_srv.srv import pos
 
 
 def main():
@@ -28,6 +29,8 @@ def main():
     # Create Publisher node
     publisher = rospy.Publisher('/gnc_node/cmd', String, queue_size = 10)
     rospy.init_node('command_pub', anonymous = True)
+    rospy.wait_for_service('Check_Pos')
+    check_position = rospy.ServiceProxy('Check_Pos', pos)
     r = rospy.Rate(1)
 
     # Create frame
@@ -194,7 +197,7 @@ def main():
 
     # Bind function
     e_handler = EventHandler(app)
-    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
+    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, check_position, r))
     app.bind('<ButtonRelease>', lambda e: e_handler.drone_stop(e, publisher, r, CmdText.START, CmdText.GRAB))
 
     # Create menu bar
@@ -243,7 +246,7 @@ class EventHandler(object):
         self.__state = True
         print('Event handler is enable')
 
-    def drone_ctrl_by_button(self, e, label, pub, rate):
+    def drone_ctrl_by_button(self, e, label, pub, cli, rate):
         if self.__state and e.widget.widgetName == 'button':
             cmd = e.widget['text'].lower()
             if CmdText.is_member(cmd) and not rospy.is_shutdown():
@@ -253,6 +256,11 @@ class EventHandler(object):
                 rospy.loginfo('Send message: {}'.format(cmd))
                 self.disable_handler()
                 rate.sleep()
+                if cmd == CmdText.GRAB.value:
+                    if self.is_grab(cli):
+                        label['text'] = label['text'] + ' -> Success, You are get prize!'
+                    else:
+                        label['text'] = label['text'] + ' -> Failure, Try agein!'
             else:
                 print('Press invalid widget or Could not send msg(data = {}) to Topic'.format(cmd))
         else:
@@ -275,6 +283,13 @@ class EventHandler(object):
             rate.sleep()
         else:
             print('Could not send msg(data = halt) to Topic')
+
+    def is_grab(self, check_position):
+        res = check_position('order')
+        if res.result == 'NONE':
+            return False
+        else:
+            return True
 
 
 class CmdText(Enum):
