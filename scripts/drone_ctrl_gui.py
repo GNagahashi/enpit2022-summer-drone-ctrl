@@ -2,11 +2,6 @@
 # >>> import sys; sys.version
 # '2.7.17 (default, Jul  1 2022, 15:56:32) \n[GCC 7.5.0]'
 
-"""
-This program don't send message for ROS Topic.
-Only GUI.
-"""
-
 
 import os
 from enum import Enum
@@ -22,13 +17,13 @@ def main():
 
     # Create and setting for app window
     app = tk.Tk()
-    app.title('Drone App')
+    app.title('Drone claw machine')
     app.minsize(700, 476)
     app.resizable(False, False)
 
     # Create Publisher node
     publisher = rospy.Publisher('/gnc_node/cmd', String, queue_size = 10)
-    rospy.init_node('command_pub', anonymous = True)
+    rospy.init_node('drone_ctrl', anonymous = True)
     rospy.wait_for_service('Check_Pos')
     check_position = rospy.ServiceProxy('Check_Pos', pos)
     r = rospy.Rate(1)

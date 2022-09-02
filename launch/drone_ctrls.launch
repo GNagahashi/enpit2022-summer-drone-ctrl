@@ -1,0 +1,33 @@
+<!-- when "drone_ctrl" node is killed, all nodes launched from this file are killed together -->
+<!-- if you want to turn off this setting, remove "required" attribute -->
+<launch>
+    <!-- <node pkg = 'package name' name = 'node name' type = 'execution file name' output = 'screen' /> -->
+    <node pkg = 'pos_sub' name = 'drone_position' type = 'subscriber.py' output = 'screen' />
+    <node pkg = 'drone_ctrl' name = 'drone_ctrl' type = 'drone_ctrl_gui.py' output = 'screen' required = 'true'/>
+    <node pkg = 'image_view' name = 'drone_camera' type = 'image_view' output = 'screen'>
+        <remap from = 'image' to = '/camera1/image_raw'/>  <!-- image:=/camera1/image_raw -->>
+        <!-- camera angle of view is defined to this: /usr/share/gazebo-9/models/iris_with_standoffs/model.sdf -->
+        <!-- default angle of view is <pose>0 0 0.1 0 0 0</pose> -->
+        <!-- this package using this value: <pose>0 0 -0.15 0 1.5708 0</pose> -->
+        <!-- angle of view of the camera is adjusted to point straight down -->
+        <!-- when "model.sdf" file edit, need "sudo" -->
+        <!-- note: <pose>x y z roll pitch yaw</pose> -->
+        <!-- note: model.sdf/<sdf>/<model name='iris'>/<link name='base_link'>/<pose> -->
+    </node>
+</launch>
+<!--
+if you didn't install "image_view" package, run below.
+
+
+cp /usr/share/gazebo-9/models/iris_with_standoffs/model.sdf ./model.sdf.bak
+cp model.sdf /usr/share/gazebo-9/models/iris_with_standoffs/
+
+rm -r ~/.gazebo/iris_with_standoffs
+
+sudo apt install curl
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+sudo apt update
+
+sudo apt install ros-melodic-gazebo-ros-pkgs ros-melodic-gazebo-ros-control
+sudo apt install ros-melodic-image-view
+-->
