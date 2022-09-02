@@ -9,10 +9,23 @@ from functools import partial
 import tkinter as tk
 import rospy
 from std_msgs.msg import String
-from pos_srv.srv import pos
+from drone_position.srv import CheckPos
+"""
+Define of msg/srv
+
+- String:
+    string data
+- CheckPos:
+    string request
+    ---
+    bool response
+"""
 
 
 def main():
+    # Name used by ROS (service, topic)
+    gnc_node_cmd = '/gnc_node/cmd'
+    check_position = 'check_position'
     file_path, _ = os.path.split(os.path.abspath(__file__))
 
     # Create and setting for app window
@@ -21,11 +34,16 @@ def main():
     app.minsize(700, 476)
     app.resizable(False, False)
 
-    # Create Publisher node
-    publisher = rospy.Publisher('/gnc_node/cmd', String, queue_size = 10)
+    # Create node
     rospy.init_node('drone_ctrl', anonymous = True)
-    rospy.wait_for_service('Check_Pos')
-    check_position = rospy.ServiceProxy('Check_Pos', pos)
+
+    # Create Publisher
+    rospy.loginfo('Create publisher for {}, please wait a minute...'.format(gnc_node_cmd))
+    publisher = rospy.Publisher(gnc_node_cmd, String, queue_size = 10)
+    # Create client 
+    rospy.loginfo('Create client for {}, please wait a minute...'.format(check_position))
+    rospy.wait_for_service(check_position)
+    handler_for_check_position = rospy.ServiceProxy(check_position, CheckPos)
     r = rospy.Rate(1)
 
     # Create frame
@@ -192,7 +210,7 @@ def main():
 
     # Bind function
     e_handler = EventHandler(app)
-    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, check_position, r))
+    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, handler_for_check_position, r))
     app.bind('<ButtonRelease>', lambda e: e_handler.drone_stop(e, publisher, r, CmdText.START, CmdText.GRAB))
 
     # Create menu bar
@@ -279,12 +297,9 @@ class EventHandler(object):
         else:
             print('Could not send msg(data = halt) to Topic')
 
-    def is_grab(self, check_position):
-        res = check_position('order')
-        if res.result == 'NONE':
-            return False
-        else:
-            return True
+    def is_grab(self, handler):
+        res = handler('Can drone grab a prize?')
+        return res.response
 
 
 class CmdText(Enum):

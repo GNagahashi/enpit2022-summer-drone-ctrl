@@ -1,8 +1,8 @@
-<!-- when "drone_ctrl" node is killed, all nodes launched from this file are killed together -->
-<!-- if you want to turn off this setting, remove "required" attribute -->
 <launch>
+    <!-- when "drone_ctrl" and "drone_position" node are killed, all nodes launched from this file are killed together -->
+    <!-- if you want to turn off this setting, remove "required" attribute -->
     <!-- <node pkg = 'package name' name = 'node name' type = 'execution file name' output = 'screen' /> -->
-    <node pkg = 'pos_sub' name = 'drone_position' type = 'subscriber.py' output = 'screen' />
+    <node pkg = 'drone_position' name = 'drone_position_server' type = 'check_position.py' output = 'screen' required = 'true'/>
     <node pkg = 'drone_ctrl' name = 'drone_ctrl' type = 'drone_ctrl_gui.py' output = 'screen' required = 'true'/>
     <node pkg = 'image_view' name = 'drone_camera' type = 'image_view' output = 'screen'>
         <remap from = 'image' to = '/camera1/image_raw'/>  <!-- image:=/camera1/image_raw -->>
