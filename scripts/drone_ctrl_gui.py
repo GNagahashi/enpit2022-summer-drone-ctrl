@@ -46,6 +46,8 @@ def main():
     handler_for_check_position = rospy.ServiceProxy(check_position, CheckPos)
     r = rospy.Rate(1)
 
+    rospy.loginfo('Ready to GUI app')
+
     # Create frame
     frame_label = tk.Frame(
         app,
@@ -247,7 +249,7 @@ class EventHandler(object):
     def __init__(self, root, delay_ms = 0):
         self.__state = True
         self.root_frame = root
-        self.delay_ms = delay_ms  # ms
+        self.delay_ms = delay_ms
 
     def disable_handler(self):
         if self.delay_ms != 0:
