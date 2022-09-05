@@ -34,6 +34,9 @@ def main():
     app.minsize(700, 476)
     app.resizable(False, False)
 
+    # Create event handler
+    e_handler = EventHandler(app)
+
     # Create node
     rospy.init_node('drone_ctrl', anonymous = True)
 
@@ -43,7 +46,7 @@ def main():
     # Create client 
     rospy.loginfo('Create client for {}, please wait a minute...'.format(check_position))
     rospy.wait_for_service(check_position)
-    handler_for_check_position = rospy.ServiceProxy(check_position, CheckPos)
+    e_handler.handler_for_check_position = rospy.ServiceProxy(check_position, CheckPos)
     r = rospy.Rate(1)
 
     rospy.loginfo('Ready to GUI app')
@@ -211,8 +214,7 @@ def main():
     )
 
     # Bind function
-    e_handler = EventHandler(app)
-    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, handler_for_check_position, r))
+    app.bind('<ButtonPress>', lambda e: e_handler.drone_ctrl_by_button(e, label_p1, publisher, r))
     app.bind('<ButtonRelease>', lambda e: e_handler.drone_stop(e, publisher, r, CmdText.START, CmdText.GRAB))
 
     # Create menu bar
@@ -250,6 +252,15 @@ class EventHandler(object):
         self.__state = True
         self.root_frame = root
         self.delay_ms = delay_ms
+        self.__handler_for_check_position = None
+
+    @property
+    def handler_for_check_position(self):
+        return self.__handler_for_check_position
+
+    @handler_for_check_position.setter
+    def handler_for_check_position(self, handler):
+        self.__handler_for_check_position = handler
 
     def disable_handler(self):
         if self.delay_ms != 0:
@@ -261,7 +272,7 @@ class EventHandler(object):
         self.__state = True
         print('Event handler is enable')
 
-    def drone_ctrl_by_button(self, e, label, pub, cli, rate):
+    def drone_ctrl_by_button(self, e, label, pub, rate):
         if self.__state and e.widget.widgetName == 'button':
             cmd = e.widget['text'].lower()
             if CmdText.is_member(cmd) and not rospy.is_shutdown():
@@ -272,7 +283,7 @@ class EventHandler(object):
                 self.disable_handler()
                 rate.sleep()
                 if cmd == CmdText.GRAB.value:
-                    if self.is_grab(cli):
+                    if self.is_grab():
                         label['text'] = label['text'] + ' -> Success, You are get prize!'
                     else:
                         label['text'] = label['text'] + ' -> Failure, Try agein!'
@@ -299,8 +310,8 @@ class EventHandler(object):
         else:
             print('Could not send msg(data = halt) to Topic')
 
-    def is_grab(self, handler):
-        res = handler('Can drone grab a prize?')
+    def is_grab(self):
+        res = self.handler_for_check_position('Can drone grab a prize?')
         return res.response
 
 
